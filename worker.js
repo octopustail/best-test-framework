@@ -1,6 +1,7 @@
 const fs = require('fs');
 const expect = require('expect').default;
 const mock = require('jest-mock');
+const { describe, it, run, resetState } = require('jest-circus');
 exports.runTest = async function (testFile) {
     const code = await fs.promises.readFile(testFile, 'utf8');
     const testResult = {
@@ -9,29 +10,16 @@ exports.runTest = async function (testFile) {
     }
 
     try {
-        const describeFns = [];
-        let currentDescribeFns;
-
-        const describe = (name, fn) => describeFns.push([name, fn]);
-        const it = (name, fn) => currentDescribeFns.push([name, fn]);
-
+        // reset state, because jest-circus won't clean it state by itself, so when running multiple test file, the state will be wrong;
+        resetState();
         // in .test.js, when call expect function, it can access the expect in this scope.
         eval(code);
 
-        for (const [name, fn] of describeFns) {
-            currentDescribeFns = [];
-            testName = name;
-            fn();
-            
-            for(const [name, fn] of currentDescribeFns){
-                testName += '  ' + name;
-                fn();
-            }
-        }
-
-        testResult.success = true;
+        const { testResults } = await run();
+        testResult.testResults = testResults;
+        testResult.success = testResults.every(result => !result.errors.length);
     } catch (e) {
-        testResult.errorMessage = testName + ': ' + e.message;
+        testResult.errorMessage =  e.message;
     }
     // console.log(`worker id: ${process.env.JEST_WORKER_ID}\nfile: ${testFile}:\n${code}`);
     return testResult;

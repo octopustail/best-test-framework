@@ -15,6 +15,7 @@ import { Worker } from "jest-worker";
 import { runTest } from "./worker.js";
 
 import chalk from "chalk";
+import { error } from "console";
 
 // import.meta.url contains the absolute path of the current module
 // Get the root path to our project (Like `__dirname`).
@@ -50,7 +51,7 @@ let hasFailed = false;
 await Promise.all(
     Array.from(testFiles).map(async (testFile) => {
 
-        const { success, errorMessage } = await worker.runTest(testFile);
+        const { success, errorMessage, testResults} = await runTest(testFile);
         const status = success ? chalk.green.inverse.bold(' PASS ')
             : chalk.red.inverse.bold(' FAIL ');
 
@@ -58,7 +59,16 @@ await Promise.all(
         console.log(status + ' ' + chalk.dim(relative(root, testFile)));
         if (!success) {
             hasFailed = true;
-            console.log('  ' + errorMessage);
+            if(testResults){
+                testResults.filter(result =>result.errors.length)
+                .forEach(result=>{
+                    console.log(
+                        result.testPath.slice(1).join(' ') + '\n' + result.errors[0]
+                    )
+                })
+            }else if(errorMessage){
+                console.log('  ' + errorMessage);
+            }
         }
     })
 )
