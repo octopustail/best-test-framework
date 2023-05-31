@@ -8,8 +8,9 @@
 */
 import JestHasteMap from "jest-haste-map";
 import { cpus } from "os";
-import { dirname } from "path";
+import { dirname, join } from "path";
 import { fileURLToPath } from "url";
+import { Worker } from "jest-worker";
 
 // import.meta.url contains the absolute path of the current module
 // Get the root path to our project (Like `__dirname`).
@@ -33,4 +34,16 @@ const { hasteFS } = await hasteMap.build();
 // ⭐️ we can apply a set of globs to the in-memory representation of the file system instead of running actual file system operations:
 const testFiles = hasteFS.matchFilesWithGlob(['**/*.test.js']);
 
-console.log(testFiles)
+// read all the code in out test file
+// although we use Promise.all, but node is still single thread. So if we want to run test more efficiently, we may use workers thread.
+// due to the matter of set up a boilerplate of a worker thread, we can use jest-worker instead.
+const worker = new Worker(join(root, 'worker.js'));
+
+await Promise.all(
+    Array.from(testFiles).map(async (testFile) => {
+        console.log(await worker.runTest(testFile));
+    })
+)
+
+worker.end();
+
