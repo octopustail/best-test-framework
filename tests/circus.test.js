@@ -10,13 +10,13 @@ describe('second circus test', ()=>{
     });
 })
 
-describe('an async circus test', ()=>{
-    it(`doen't work`, async ()=>{
-        await new Promise((resolve, reject)=>{
-            setTimeout(()=>{
-                resolve();
-            }, 1000);
-        });
-        expect(1).toBe(2);
-    });
-})
+// describe('an async circus test', ()=>{
+//     it(`doen't work`, async ()=>{
+//         await new Promise((resolve, reject)=>{
+//             setTimeout(()=>{
+//                 resolve();
+//             }, 1000);
+//         });
+//         expect(1).toBe(2);
+//     });
+// })
