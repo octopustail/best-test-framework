@@ -1,0 +1,10 @@
+{
+  "name": "best-test-framework",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "glob": "^10.2.6",
+    "jest-haste-map": "^29.5.0"
+  }
+}
