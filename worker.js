@@ -20,10 +20,7 @@ exports.runTest = async function (testFile) {
         // reset state, because jest-circus won't clean it state by itself, so when running multiple test file, the state will be wrong;
         resetState();
         // in .test.js, when call expect function, it can access the expect in this scope.
-        // vm.runInContext(code, environment.getVmContext());
-        const context = { describe, it, expect, mock };
-        vm.createContext(context);
-        vm.runInContext(code, context);
+        vm.runInContext(code, environment.getVmContext());
 
         const { testResults } = await run();
         testResult.testResults = testResults;
