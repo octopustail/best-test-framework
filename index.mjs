@@ -10,12 +10,11 @@ import JestHasteMap from "jest-haste-map";
 import { cpus } from "os";
 import { dirname, join, relative } from "path";
 import { fileURLToPath } from "url";
+import { runTest } from './worker.js'
 
 import { Worker } from "jest-worker";
-import { runTest } from "./worker.js";
 
 import chalk from "chalk";
-import { error } from "console";
 
 // import.meta.url contains the absolute path of the current module
 // Get the root path to our project (Like `__dirname`).
