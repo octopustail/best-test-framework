@@ -45,9 +45,8 @@ const worker = new Worker(join(root, 'worker.js'));
 
 await Promise.all(
     Array.from(testFiles).map(async (testFile) => {
-        // worker 中的报错似乎不会跑出来，暂时使用runTest.
-        // console.log(await worker.runTest(testFile));
-        const { success, errorMessage } = await runTest(testFile);
+
+        const { success, errorMessage } = await worker.runTest(testFile);
         const status = success ? chalk.green.inverse.bold(' PASS ')
             : chalk.red.inverse.bold(' FAIL ');
         console.log(status + ' ' + chalk.dim(relative(root, testFile)));
