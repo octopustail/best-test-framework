@@ -11,6 +11,7 @@ import { cpus } from "os";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
 import { Worker } from "jest-worker";
+import { runTest } from "./worker.js";
 
 // import.meta.url contains the absolute path of the current module
 // Get the root path to our project (Like `__dirname`).
@@ -41,7 +42,9 @@ const worker = new Worker(join(root, 'worker.js'));
 
 await Promise.all(
     Array.from(testFiles).map(async (testFile) => {
-        console.log(await worker.runTest(testFile));
+        // worker 中的报错似乎不会跑出来，暂时使用runTest.
+        // console.log(await worker.runTest(testFile));
+        console.log(await runTest(testFile));
     })
 )
 
