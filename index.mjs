@@ -8,10 +8,13 @@
 */
 import JestHasteMap from "jest-haste-map";
 import { cpus } from "os";
-import { dirname, join } from "path";
+import { dirname, join, relative } from "path";
 import { fileURLToPath } from "url";
+
 import { Worker } from "jest-worker";
 import { runTest } from "./worker.js";
+
+import chalk from "chalk";
 
 // import.meta.url contains the absolute path of the current module
 // Get the root path to our project (Like `__dirname`).
@@ -44,7 +47,13 @@ await Promise.all(
     Array.from(testFiles).map(async (testFile) => {
         // worker 中的报错似乎不会跑出来，暂时使用runTest.
         // console.log(await worker.runTest(testFile));
-        console.log(await runTest(testFile));
+        const { success, errorMessage } = await runTest(testFile);
+        const status = success ? chalk.green.inverse.bold(' PASS ')
+            : chalk.red.inverse.bold(' FAIL ');
+        console.log(status + ' ' + chalk.dim(relative(root, testFile)));
+        if (!success) {
+            console.log('  ' + errorMessage);
+        }
     })
 )
 

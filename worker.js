@@ -24,6 +24,6 @@ exports.runTest = async function (testFile) {
     } catch (e) {
         testResult.errorMessage = e.message;
     }
-    console.log(testResult)
-    return `worker id: ${process.env.JEST_WORKER_ID}\nfile: ${testFile}:\n${code}`;
+    // console.log(`worker id: ${process.env.JEST_WORKER_ID}\nfile: ${testFile}:\n${code}`);
+    return testResult;
 }
