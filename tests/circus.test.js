@@ -21,7 +21,7 @@ describe('an async circus test', ()=>{
     });
 })
 
-const banana = require('./banana.js');
+const banana = require('../js/banana.js');
 
 it('fruit taste', ()=>{
     expect(banana).toBe('good');
