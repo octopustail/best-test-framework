@@ -26,3 +26,9 @@ const banana = require('../js/banana.js');
 it('fruit taste', ()=>{
     expect(banana).toBe('good');
 })
+
+const apple = require('../js/apple.js');
+
+it('fruit taste', ()=>{
+    expect(apple).toBe('delicious');
+})

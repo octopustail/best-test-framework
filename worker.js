@@ -12,11 +12,18 @@ exports.runTest = async function (testFile) {
     }
 
     const customRequire = fileName => {
-        const code = fs.readFileSync(join(dirname(testFile), fileName), 'utf-8');
-        return vm.runInContext(
-            'const module = {exports: {}};\n' + code + ';module.exports;',
-            environment.getVmContext()
-        )
+        const code = fs.readFileSync(join(dirname(testFile), fileName), 'utf8');
+        const moduleFactory = vm.runInContext(
+            `(function(module) {${code}})`,
+            environment.getVmContext(),
+        );
+        const module = { exports: {} };
+        console.log('module before', module)
+        // Run the sandboxed function with our module object.
+        moduleFactory(module);
+        console.log('module after', module)
+
+        return module.exports;
     }
 
     const NodeEnvironment = require('jest-environment-node').default;
