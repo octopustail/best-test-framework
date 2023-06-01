@@ -3,41 +3,42 @@ const expect = require('expect').default;
 const mock = require('jest-mock');
 const vm = require('vm')
 const { describe, it, run, resetState } = require('jest-circus');
-const { join, dirname } = require('path');
+const { join, dirname, basename } = require('path');
+const NodeEnvironment = require('jest-environment-node').default;
+
 exports.runTest = async function (testFile) {
-    const code = await fs.promises.readFile(testFile, 'utf8');
     const testResult = {
         success: false,
         errorMessage: null
     }
 
-    const customRequire = fileName => {
-        const code = fs.readFileSync(join(dirname(testFile), fileName), 'utf8');
-        const moduleFactory = vm.runInContext(
-            `(function(module) {${code}})`,
-            environment.getVmContext(),
-        );
-        const module = { exports: {} };
-        console.log('module before', module)
-        // Run the sandboxed function with our module object.
-        moduleFactory(module);
-        console.log('module after', module)
-
-        return module.exports;
-    }
-
-    const NodeEnvironment = require('jest-environment-node').default;
-    const environment = new NodeEnvironment({
-        projectConfig: {
-            testEnvironmentOptions: { describe, it, expect, mock, require: customRequire }
-        }
-    })
 
     try {
         // reset state, because jest-circus won't clean it state by itself, so when running multiple test file, the state will be wrong;
         resetState();
-        // in .test.js, when call expect function, it can access the expect in this scope.
-        vm.runInContext(code, environment.getVmContext());
+        let environment
+        const customRequire = fileName => {
+            const code = fs.readFileSync(join(dirname(testFile), fileName), 'utf8');
+            const moduleFactory = vm.runInContext(
+                // inject require as a varviable here
+                `(function(module, require) {${code}})`,
+                environment.getVmContext(),
+            );
+            const module = { exports: {} };
+
+            // pass customRequire 
+            moduleFactory(module, customRequire);
+            return module.exports;
+        }
+    
+        environment = new NodeEnvironment({
+            projectConfig: {
+                testEnvironmentOptions: { describe, it, expect, mock }
+            }
+        })
+
+        // use CustomRequrie to run the test file.
+        customRequire(basename(testFile))
 
         const { testResults } = await run();
         testResult.testResults = testResults;
@@ -45,6 +46,5 @@ exports.runTest = async function (testFile) {
     } catch (e) {
         testResult.errorMessage = e.message;
     }
-    // console.log(`worker id: ${process.env.JEST_WORKER_ID}\nfile: ${testFile}:\n${code}`);
     return testResult;
 };
