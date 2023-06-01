@@ -1,12 +1,12 @@
 describe('circus test', ()=>{
     it('works', ()=>{
-        expect(true).toBe(true);
+        expect(true).toBe(false);
     });
 });
 
 describe('second circus test', ()=>{
     it(`dosen't work`, ()=>{
-        expect(true).toBe(false);
+        expect(true).toBe(true);
     });
 })
 
@@ -17,7 +17,7 @@ describe('an async circus test', ()=>{
                 resolve();
             }, 1000);
         });
-        expect(1).toBe(2);
+        expect(2).toBe(2);
     });
 })
 

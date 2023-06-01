@@ -3,16 +3,26 @@ const expect = require('expect').default;
 const mock = require('jest-mock');
 const vm = require('vm')
 const { describe, it, run, resetState } = require('jest-circus');
+const { join, dirname } = require('path');
 exports.runTest = async function (testFile) {
     const code = await fs.promises.readFile(testFile, 'utf8');
     const testResult = {
         success: false,
         errorMessage: null
     }
+
+    const customRequire = fileName => {
+        const code = fs.readFileSync(join(dirname(testFile), fileName), 'utf-8');
+        return vm.runInContext(
+            'const module = {exports: {}};\n' + code + ';module.exports;',
+            environment.getVmContext()
+        )
+    }
+
     const NodeEnvironment = require('jest-environment-node').default;
     const environment = new NodeEnvironment({
         projectConfig: {
-            testEnvironmentOptions: { describe, it, expect, mock }
+            testEnvironmentOptions: { describe, it, expect, mock, require: customRequire }
         }
     })
 
